@@ -1,6 +1,7 @@
 FROM --platform=$BUILDPLATFORM scratch AS base
 
-ADD https://github.com/getumbrel/umbrel.git#1.2.2 /
+ARG VERSION_ARG="0.0"
+ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
 # Apply custom patches
 COPY source /packages/umbreld/source
