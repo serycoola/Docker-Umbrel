@@ -1,8 +1,10 @@
 import os from 'node:os'
+import {setTimeout} from 'node:timers/promises'
 
 import systemInformation from 'systeminformation'
 import {$} from 'execa'
 import fse from 'fs-extra'
+import PQueue from 'p-queue'
 
 import type Umbreld from '../index.js'
 
@@ -378,4 +380,11 @@ export async function getIpAddresses(): Promise<string[]> {
 	const ipAddresses = validInterfaces.map((iface) => iface.ip4)
 
 	return ipAddresses
+}
+
+const syncDnsQueue = new PQueue({concurrency: 1})
+
+// Update DNS configuration to match user settings
+export async function syncDns() {
+	return true
 }
