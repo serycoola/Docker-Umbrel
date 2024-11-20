@@ -4,14 +4,15 @@ import {dirname, join} from 'node:path'
 import fse from 'fs-extra'
 import {$} from 'execa'
 import pRetry from 'p-retry'
+import semver from 'semver'
 
 import randomToken from '../../modules/utilities/random-token.js'
-
 import type Umbreld from '../../index.js'
-
 import appEnvironment from './legacy-compat/app-environment.js'
 
-import App from './app.js'
+import type {AppSettings} from './schema.js'
+import App, {readManifestInDirectory} from './app.js'
+import type {AppManifest} from './schema.js'
 
 export default class Apps {
 	#umbreld: Umbreld
@@ -116,7 +117,7 @@ export default class Apps {
 		} catch (error) {
 			this.logger.error(`Failed to create Tor data directory: ${(error as Error).message}`)
 		}
-		
+
 		try {
 			// Set permissions for tor data directory
 			await $`sudo chown -R 1000:1000 ${this.#umbreld.dataDirectory}/tor`
@@ -124,7 +125,7 @@ export default class Apps {
 			this.logger.error(`Failed to set permissions for Tor data directory: ${(error as Error).message}`)
 		}
 
-		// Start app environment
+ 		// Start app environment
 		try {
 			try {
 				await appEnvironment(this.#umbreld, 'up')
@@ -179,7 +180,7 @@ export default class Apps {
 			},
 			retries: 2,
 		})
-		
+
 		this.logger.log('Successfully stopped all apps...')
 	}
 
@@ -194,14 +195,27 @@ export default class Apps {
 		return app
 	}
 
-	async install(appId: string) {
+	async install(appId: string, alternatives?: AppSettings['dependencies']) {
 		if (await this.isInstalled(appId)) throw new Error(`App ${appId} is already installed`)
 
 		this.logger.log(`Installing app ${appId}`)
 		const appTemplatePath = await this.#umbreld.appStore.getAppTemplateFilePath(appId)
 
-		const appTemplateExists = await fse.pathExists(`${appTemplatePath}/umbrel-app.yml`)
-		if (!appTemplateExists) throw new Error('App template not found')
+		let manifestVersion: AppManifest['manifestVersion']
+		try {
+			manifestVersion = (await readManifestInDirectory(appTemplatePath)).manifestVersion
+		} catch {
+			throw new Error('App template not found')
+		}
+		const manifestVersionValid = semver.valid(manifestVersion)
+		if (!manifestVersionValid) {
+			throw new Error('App manifest version is invalid')
+		}
+		const umbrelVersionValid = semver.valid(this.#umbreld.version)
+		const manifestVersionIsSupported = !!umbrelVersionValid && semver.lte(manifestVersionValid, umbrelVersionValid)
+		if (!manifestVersionIsSupported) {
+			throw new Error(`App manifest version not supported`)
+		}
 
 		this.logger.log(`Setting up data directory for ${appId}`)
 		const appDataDirectory = `${this.#umbreld.dataDirectory}/app-data/${appId}`
@@ -212,6 +226,7 @@ export default class Apps {
 
 		// Save reference to app instance
 		const app = new App(this.#umbreld, appId)
+		app.store.set('dependencies', alternatives || {})
 		this.instances.push(app)
 
 		// Complete the install process via the app script
@@ -238,11 +253,9 @@ export default class Apps {
 	}
 
 	async uninstall(appId: string) {
-		// If we can't read a manifest for any reason just skip that app, don't abort the uninstall
-		let installedManifests = await Promise.all(this.instances.map((app) => app.readManifest().catch(() => null)))
-		installedManifests = installedManifests.filter((manifest) => manifest !== null)
-		const isDependency = installedManifests.some((manifest) => manifest!.dependencies?.includes(appId))
-
+		// If we can't read an app's dependencies for any reason just skip that app, don't abort the uninstall
+		const allDependencies = await Promise.all(this.instances.map((app) => app.getDependencies().catch(() => null)))
+		const isDependency = allDependencies.some((dependencies) => dependencies?.includes(appId))
 		if (isDependency) throw new Error(`App ${appId} is a dependency of another app and cannot be uninstalled`)
 
 		const app = this.getApp(appId)
@@ -321,5 +334,25 @@ export default class Apps {
 
 	async getTorEnabled() {
 		return this.#umbreld.store.get('torEnabled')
+	}
+
+	async setSelectedDependencies(appId: string, dependencies: Record<string, string>) {
+		const app = this.getApp(appId)
+		return app.setSelectedDependencies(dependencies)
+	}
+
+	async getDependents(appId: string) {
+		const allDependencies = await Promise.all(
+			this.instances.map(async (app) => ({
+				id: app.id,
+				dependencies: await app.getDependencies(),
+			})),
+		)
+		return allDependencies.filter(({dependencies}) => dependencies.includes(appId)).map(({id}) => id)
+	}
+
+	async setHideCredentialsBeforeOpen(appId: string, value: boolean) {
+		const app = this.getApp(appId)
+		return app.store.set('hideCredentialsBeforeOpen', value)
 	}
 }
