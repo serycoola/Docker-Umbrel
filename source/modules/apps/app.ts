@@ -4,16 +4,16 @@ import fse from 'fs-extra'
 import yaml from 'js-yaml'
 import {type Compose} from 'compose-spec-schema'
 import {$} from 'execa'
-import systemInformation from 'systeminformation'
 import fetch from 'node-fetch'
 import stripAnsi from 'strip-ansi'
 import pRetry from 'p-retry'
 
 import getDirectorySize from '../utilities/get-directory-size.js'
 import {pullAll} from '../utilities/docker-pull.js'
+import FileStore from '../utilities/file-store.js'
 
 import type Umbreld from '../../index.js'
-import {type AppManifest} from './schema.js'
+import {validateManifest, type AppSettings} from './schema.js'
 
 import appScript from './legacy-compat/app-script.js'
 
@@ -34,6 +34,11 @@ async function patchYaml(path: string) {
 
 	await fse.writeFile(path, yaml)
 	return true
+}
+
+export async function readManifestInDirectory(dataDirectory: string) {
+	const parseYaml = readYaml(`${dataDirectory}/umbrel-app.yml`)
+	return parseYaml.then(validateManifest)
 }
 
 type AppState =
@@ -60,6 +65,7 @@ export default class App {
 	dataDirectory: string
 	state: AppState = 'unknown'
 	stateProgress = 0
+	store: FileStore<AppSettings>
 
 	constructor(umbreld: Umbreld, appId: string) {
 		// Throw on invalid appId
@@ -70,10 +76,11 @@ export default class App {
 		this.dataDirectory = `${umbreld.dataDirectory}/app-data/${this.id}`
 		const {name} = this.constructor
 		this.logger = umbreld.logger.createChildLogger(name.toLowerCase())
+		this.store = new FileStore({filePath: `${this.dataDirectory}/settings.yml`})
 	}
 
 	readManifest() {
-		return readYaml(`${this.dataDirectory}/umbrel-app.yml`) as Promise<AppManifest>
+		return readManifestInDirectory(this.dataDirectory)
 	}
 
 	readCompose() {
@@ -361,5 +368,38 @@ export default class App {
 				throw new Error(`An unexpected error occured while fetching data from ${url}: ${error}`)
 			}
 		}
+	}
+
+	// Get the app's dependencies with selected dependencies applied
+	async getDependencies() {
+		const [{dependencies}, selectedDependencies] = await Promise.all([
+			this.readManifest(),
+			this.getSelectedDependencies(),
+		])
+		return dependencies?.map((dependencyId) => selectedDependencies?.[dependencyId] ?? dependencyId) ?? []
+	}
+
+	// Get the app's selected dependencies
+	async getSelectedDependencies() {
+		return this.store.get('dependencies')
+	}
+
+	// Set the app's selected dependencies
+	async setSelectedDependencies(selectedDependencies: Record<string, string>) {
+		const {dependencies} = await this.readManifest()
+		const selections = (dependencies ?? []).reduce(
+			(selections, dependencyId) => {
+				selections[dependencyId] = selectedDependencies[dependencyId] ?? dependencyId
+				return selections
+			},
+			{} as Record<string, string>,
+		)
+		const success = await this.store.set('dependencies', selections)
+		if (success) {
+			this.restart().catch((error) => {
+				this.logger.error(`Failed to restart '${this.id}': ${error.message}`)
+			})
+		}
+		return success
 	}
 }
