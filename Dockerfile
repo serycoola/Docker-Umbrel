@@ -11,6 +11,7 @@ COPY source /packages/umbreld/source
 #########################################################################
 
 FROM --platform=$BUILDPLATFORM node:18.19.1-buster-slim AS ui-build
+ENV NODE_ENV=production
 
 # Install pnpm
 RUN npm install -g pnpm@8
