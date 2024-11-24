@@ -294,8 +294,6 @@ export default class App {
 			this.logger.error(`Failed to get pids for app ${this.id}: ${(error as Error).message}`)
 			return []
 		}
-
-		return pids.flat()
 	}
 
 	async getDiskUsage() {
