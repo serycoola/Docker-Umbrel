@@ -33,7 +33,6 @@ RUN pnpm run build
 #########################################################################
 
 FROM debian:bookworm-slim AS be-build
-ENV NODE_ENV=production
 
 RUN set -eu \
   && apt-get update -y \
