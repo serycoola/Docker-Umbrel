@@ -23,7 +23,7 @@ COPY --from=base packages/ui/ .
 
 # Install the dependencies
 RUN rm -rf node_modules || true
-RUN pnpm install
+RUN pnpm install --prod
 
 # Build the app
 RUN pnpm run build
@@ -32,7 +32,14 @@ RUN pnpm run build
 # backend build stage
 #########################################################################
 
-FROM node:18 AS be-build
+FROM debian:bookworm-slim AS be-build
+ENV NODE_ENV=production
+
+RUN set -eu \
+  && apt-get update -y \
+  && apt-get --no-install-recommends -y install npm \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=base packages/umbreld /tmp/umbreld
 COPY --from=ui-build /app/dist /tmp/umbreld/ui
@@ -41,7 +48,7 @@ RUN chmod +x /tmp/umbreld/source/modules/apps/legacy-compat/app-script
 
 # Install the dependencies
 RUN rm -rf node_modules || true
-RUN npm install
+RUN npm install --omit dev
 
 # Build the app
 RUN npm run build -- --native
