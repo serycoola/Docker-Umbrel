@@ -37,7 +37,7 @@ ENV NODE_ENV=production
 
 RUN set -eu \
   && apt-get update -y \
-  && apt-get --no-install-recommends -y install npm \
+  && apt-get --no-install-recommends -y install npm make \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
