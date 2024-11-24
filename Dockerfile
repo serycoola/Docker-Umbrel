@@ -23,12 +23,12 @@ WORKDIR /app
 COPY --from=base packages/ui/ .
 
 # Install the dependencies
+RUN sed -i '/postinstall/d' package.json
 RUN rm -rf node_modules || true
 RUN pnpm install --dev
-RUN mv ./node_modules/@tabler /.
+RUN mkdir -p public/generated-tabler-icons
+RUN cp -r ./node_modules/@tabler/icons/icons/. ./public/generated-tabler-icons
 RUN rm -rf node_modules || true
-RUN mkdir -p ./node_modules
-RUN mv /@tabler ./node_modules/.
 RUN pnpm install --prod
 
 # Build the app
