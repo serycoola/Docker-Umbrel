@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=base packages/ui/ .
 
 # Install the dependencies
-RUN sed -i -e 's/npm run copy-tabler-icons/asd/g' package.json
+RUN sed -i -e 's/npm run copy-tabler-icons/ /g' package.json
 RUN rm -rf node_modules || true
 RUN pnpm install --dev
 RUN mkdir -p public/generated-tabler-icons
