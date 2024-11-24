@@ -24,7 +24,7 @@ COPY --from=base packages/ui/ .
 
 # Install the dependencies
 RUN rm -rf node_modules || true
-RUN pnpm install
+RUN pnpm install --dev
 RUN mv ./node_modules/@tabler /.
 RUN rm -rf node_modules || true
 RUN mkdir -p ./node_modules
