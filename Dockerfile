@@ -24,6 +24,7 @@ COPY --from=base packages/ui/ .
 
 # Install the dependencies
 RUN rm -rf node_modules || true
+RUN pnpm install tabler/icons@2.39.0
 RUN pnpm install --prod
 
 # Build the app
