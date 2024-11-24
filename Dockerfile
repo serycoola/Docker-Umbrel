@@ -11,7 +11,6 @@ COPY source /packages/umbreld/source
 #########################################################################
 
 FROM --platform=$BUILDPLATFORM node:18.19.1-buster-slim AS ui-build
-ENV NODE_ENV=production
 
 # Install pnpm
 RUN npm install -g pnpm@8
@@ -23,14 +22,8 @@ WORKDIR /app
 COPY --from=base packages/ui/ .
 
 # Install the dependencies
-RUN sed -i -e 's/npm run copy-tabler-icons/ /g' package.json
 RUN rm -rf node_modules || true
-RUN pnpm install --dev
-RUN mkdir -p public/generated-tabler-icons
-RUN cp -r ./node_modules/@tabler/icons/icons/. ./public/generated-tabler-icons
-RUN rm -rf node_modules || true
-RUN pnpm install --prod
-RUN pnpm install vite
+RUN pnpm install
 
 # Build the app
 RUN pnpm run build
