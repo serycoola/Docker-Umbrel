@@ -30,6 +30,7 @@ RUN mkdir -p public/generated-tabler-icons
 RUN cp -r ./node_modules/@tabler/icons/icons/. ./public/generated-tabler-icons
 RUN rm -rf node_modules || true
 RUN pnpm install --prod
+RUN pnpm install vite
 
 # Build the app
 RUN pnpm run build
