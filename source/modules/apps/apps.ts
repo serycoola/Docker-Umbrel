@@ -95,7 +95,7 @@ export default class Apps {
 
 		// Attempt to pre-load local Docker images
 		try {
-			// Loop over iamges in /images
+			// Loop over images in /images
 			const images = await fse.readdir(`/images`)
 			await Promise.all(
 				images.map(async (image) => {
