@@ -99,7 +99,7 @@ export async function getDiskUsage(
 // Returns a list of all processes and their memory usage
 async function getProcessesMemory() {
 	// Get a snapshot of system CPU and memory usage
-	const ps = await $`docker exec --privileged -it $(hostname -s) ps -Ao pid,pss --no-header`
+	const ps = await $`docker exec --privileged -it ` + os.hostname() + ` ps -Ao pid,pss --no-header`
 
 	// Format snapshot data
 	const processes = ps.stdout.split('\n').map((line) => {
@@ -188,7 +188,7 @@ export async function getMemoryUsage(umbreld: Umbreld): Promise<{
 // Returns a list of all processes and their cpu usage
 async function getProcessesCpu() {
 	// Get a snapshot of system CPU and memory usage
-	const top = await $`docker exec --privileged -it $(hostname -s) top --batch-mode --iterations 1`
+	const top = await $`docker exec --privileged -it ` + os.hostname() + ` top --batch-mode --iterations 1`
 
 	// Get lines
 	const lines = top.stdout.split('\n').map((line) => line.trim().split(/\s+/))
