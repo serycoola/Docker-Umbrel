@@ -27,7 +27,6 @@ services:
   umbrel:
     image: dockurr/umbrel
     container_name: umbrel
-    privileged: true
     pid: host
     ports:
       - 80:80
@@ -40,7 +39,7 @@ services:
 Via Docker CLI:
 
 ```bash
-docker run -it --rm -p 80:80 -v /home/example:/data -v /var/run/docker.sock:/var/run/docker.sock --pid=host --privileged --stop-timeout 60 dockurr/umbrel
+docker run -it --rm -p 80:80 -v /home/example:/data -v /var/run/docker.sock:/var/run/docker.sock --pid=host --stop-timeout 60 dockurr/umbrel
 ```
 
 ## Screenshot 📸
