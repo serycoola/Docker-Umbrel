@@ -32,13 +32,7 @@ RUN pnpm run build
 # backend build stage
 #########################################################################
 
-FROM debian:bookworm-slim AS be-build
-
-RUN set -eu \
-  && apt-get update -y \
-  && apt-get --no-install-recommends -y install npm make cmake build-essential \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+FROM node:18.19.1-buster-slim AS be-build
 
 COPY --from=base packages/umbreld /tmp/umbreld
 COPY --from=ui-build /app/dist /tmp/umbreld/ui
