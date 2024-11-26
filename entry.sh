@@ -26,10 +26,10 @@ if ! docker network inspect umbrel_main_network &>/dev/null; then
   fi
 fi
 
-target=$(hostname)
+target=$(hostname -s)
 
 if ! docker inspect "$target" &>/dev/null; then
-  error "Failed to find a container with name '$target'!" && exit 16
+  error "Failed to find a container with name: '$target'!" && exit 16
 fi
 
 resp=$(docker inspect "$target")
