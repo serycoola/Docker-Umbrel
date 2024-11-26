@@ -70,69 +70,16 @@ export async function getLatestRelease(umbreld: Umbreld) {
 
 export async function performUpdate(umbreld: Umbreld) {
 	setUpdateStatus({running: true, progress: 5, description: 'Updating...', error: false})
+	setUpdateStatus({error: 'Updates not supported'})
 
-	try {
-		const {updateScript} = await getLatestRelease(umbreld)
+	// Reset the state back to running but leave the error message so ui polls
+	// can differentiate between a successful update after reboot and a failed
+	// update that didn't reboot.
+	const errorStatus = updateStatus.error
+	resetUpdateStatus()
+	setUpdateStatus({error: errorStatus})
 
-		if (!updateScript) {
-			setUpdateStatus({error: 'No update script found'})
-			throw new Error('No update script found')
-		}
+	umbreld.logger.error(`Updates not supported`)
 
-		const result = await fetch(updateScript, {
-			headers: {'User-Agent': `umbrelOS ${umbreld.version}`},
-		})
-		const updateSCriptContents = await result.text()
-
-		// Exectute update script and report progress
-		const process = $`bash -c ${updateSCriptContents}`
-		let menderInstallDots = 0
-		async function handleUpdateScriptOutput(chunk: Buffer) {
-			const text = chunk.toString()
-			const lines = text.split('\n')
-			for (const line of lines) {
-				// Handle our custom status updates
-				if (line.startsWith('umbrel-update: ')) {
-					try {
-						const status = JSON.parse(line.replace('umbrel-update: ', '')) as Partial<UpdateStatus>
-						setUpdateStatus(status)
-					} catch (error) {
-						// Don't kill update on JSON parse errors
-					}
-				}
-
-				// Handle mender install progress
-				if (line === '.') {
-					menderInstallDots++
-					// Mender install will stream 70 dots to stdout, lets convert that into 5%-95% of install progress
-					const progress = Math.min(95, Math.floor((menderInstallDots / 70) * 90) + 5)
-					umbreld.logger.log(`Update progress: ${progress}%`)
-					setUpdateStatus({progress})
-				}
-			}
-		}
-		process.stdout?.on('data', (chunk) => handleUpdateScriptOutput(chunk))
-		process.stderr?.on('data', (chunk) => handleUpdateScriptOutput(chunk))
-
-		// Wait for script to complete and handle errors
-		await process
-	} catch (error) {
-		// Don't overwrite a useful error message reported by the update script
-		if (!updateStatus.error) setUpdateStatus({error: 'Update failed'})
-
-		// Reset the state back to running but leave the error message so ui polls
-		// can differentiate between a successful update after reboot and a failed
-		// update that didn't reboot.
-		const errorStatus = updateStatus.error
-		resetUpdateStatus()
-		setUpdateStatus({error: errorStatus})
-
-		umbreld.logger.error(`Update script failed: ${(error as Error).message}`)
-
-		return false
-	}
-
-	setUpdateStatus({running: false, progress: 100, description: 'Restarting...'})
-
-	return true
+	return false
 }
