@@ -1,4 +1,5 @@
 import {$} from 'execa'
+import { setTimeout } from 'node:timers/promises';
 import type {ProgressStatus} from './apps/schema.js'
 import {detectDevice, isUmbrelOS} from './system.js'
 import Umbreld from '../index.js'
@@ -39,7 +40,10 @@ export async function getLatestRelease(umbreld: Umbreld) {
 }
 
 export async function performUpdate(umbreld: Umbreld) {
+
 	setUpdateStatus({running: true, progress: 5, description: 'Updating...', error: false})
+        await setTimeout(1000);
+
 	setUpdateStatus({error: 'Updates not supported, update the container instead!'})
 
 	// Reset the state back to running but leave the error message so ui polls
