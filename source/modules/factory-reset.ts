@@ -50,5 +50,5 @@ export async function performReset(umbreld: Umbreld) {
 		return false
 	}
 
-        return failWithError(`Factory reset is not supported yet, just remove the volume!`)
+        return failWithError(`Factory reset is not supported in a Docker container, just remove the volume!`)
 }
