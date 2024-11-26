@@ -32,7 +32,8 @@ export function getResetStatus() {
 }
 
 export async function performReset(umbreld: Umbreld) {
-	const {dataDirectory} = umbreld
+
+	setResetStatus({running: true, progress: 5, description: 'Resetting...', error: false})
 
 	// The following must try hard to even complete on a heavily broken system.
 	// For instance, the user might be unable to log in, networking might be
@@ -48,5 +49,5 @@ export async function performReset(umbreld: Umbreld) {
 		return false
 	}
 
-        return failWithError(`Factory reset is not supported yet!`)
+        return failWithError(`Factory reset is not supported yet, just remove the volume!`)
 }
