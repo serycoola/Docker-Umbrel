@@ -34,6 +34,7 @@ export function getResetStatus() {
 export async function performReset(umbreld: Umbreld) {
 
 	setResetStatus({running: true, progress: 5, description: 'Resetting...', error: false})
+        await setTimeout(1000);
 
 	// The following must try hard to even complete on a heavily broken system.
 	// For instance, the user might be unable to log in, networking might be
