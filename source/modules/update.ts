@@ -26,51 +26,21 @@ export function getUpdateStatus() {
 }
 
 export async function getLatestRelease(umbreld: Umbreld) {
-	let deviceId = 'unknown'
-	try {
-		deviceId = (await detectDevice()).deviceId
-	} catch (error) {
-		umbreld.logger.error(`Failed to detect device type: ${(error as Error).message}`)
-	}
 
-	let platform = 'unknown'
-	try {
-		if (await isUmbrelOS()) {
-			platform = 'umbrelOS'
-		}
-	} catch (error) {
-		umbreld.logger.error(`Failed to detect platform: ${(error as Error).message}`)
-	}
+        const data =
+        {
+	        name: "umbrelOS",
+                version: "v" + umbreld.version,
+		releaseNotes: "",
+	        updateScript: ""
+        };
 
-	let channel = 'stable'
-	try {
-		channel = (await umbreld.store.get('settings.releaseChannel')) || 'stable'
-	} catch (error) {
-		umbreld.logger.error(`Failed to get release channel: ${(error as Error).message}`)
-	}
-
-	const updateUrl = new URL('https://api.umbrel.com/latest-release')
-	// Provide context to the update server about the underlying device and platform
-	// so we can avoid the 1.0 update situation where we need to shim multiple update
-	// mechanisms and error-out updates for unsupported platforms. This also helps
-	// notifying users for critical security updates that are be relevant only to their specific
-	// platform, and avoids notififying users of updates that aren't yet available for their
-	// platform.
-	updateUrl.searchParams.set('version', umbreld.version)
-	updateUrl.searchParams.set('device', deviceId)
-	updateUrl.searchParams.set('platform', platform)
-	updateUrl.searchParams.set('channel', channel)
-
-	const result = await fetch(updateUrl, {
-		headers: {'User-Agent': `umbrelOS ${umbreld.version}`},
-	})
-	const data = await result.json()
-	return data as {version: string; name: string; releaseNotes: string; updateScript?: string}
+	return data
 }
 
 export async function performUpdate(umbreld: Umbreld) {
 	setUpdateStatus({running: true, progress: 5, description: 'Updating...', error: false})
-	setUpdateStatus({error: 'Updates not supported'})
+	setUpdateStatus({error: 'Updates not supported, update the container instead!'})
 
 	// Reset the state back to running but leave the error message so ui polls
 	// can differentiate between a successful update after reboot and a failed
@@ -78,8 +48,6 @@ export async function performUpdate(umbreld: Umbreld) {
 	const errorStatus = updateStatus.error
 	resetUpdateStatus()
 	setUpdateStatus({error: errorStatus})
-
-	umbreld.logger.error(`Updates not supported`)
 
 	return false
 }
