@@ -91,7 +91,7 @@ COPY --chmod=664 ./smb.conf /etc/samba/smb.conf
 
 # Install umbreld
 COPY --chmod=755 ./entry.sh /run/
-COPY --from=be-build --chmod=755 /opt/umbreld/build/umbreld /usr/local/bin/umbreld
+COPY --from=be-build --chmod=755 /opt/umbreld /opt/umbreld
 
 VOLUME /data
 EXPOSE 80 443
