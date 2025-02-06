@@ -20,7 +20,7 @@ fi
 net="umbrel_main_network"
 
 if ! docker network inspect "$net" &>/dev/null; then
-  if ! docker network create --driver=bridge --subnet="10.22.0.0/16" "$net" >/dev/null; then
+  if ! docker network create --driver=bridge --subnet="10.21.0.0/16" "$net" >/dev/null; then
     error "Failed to create network '$net'!" && exit 14
   fi
   if ! docker network inspect "$net" &>/dev/null; then
