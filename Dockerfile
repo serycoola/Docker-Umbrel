@@ -1,3 +1,7 @@
+ARG YQ_VERSION=4.24.5
+ARG NODE_VERSION=22.13.0
+ARG DEBIAN_VERSION=bookworm
+
 FROM --platform=$BUILDPLATFORM scratch AS base
 
 ARG VERSION_ARG="0.0"
@@ -5,12 +9,13 @@ ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
 # Apply custom patches
 COPY source /packages/umbreld/source
+RUN chmod +x /packages/umbreld/source/modules/apps/legacy-compat/app-script
 
 #########################################################################
 # ui build stage
 #########################################################################
 
-FROM --platform=$BUILDPLATFORM node:22 AS ui-build
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-${DEBIAN_VERSION} AS ui-build
 
 # Install pnpm
 RUN npm install -g pnpm@8
@@ -32,30 +37,29 @@ RUN pnpm run build
 # backend build stage
 #########################################################################
 
-FROM node:22 AS be-build
+FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS be-build
 
 COPY --from=base packages/umbreld /opt/umbreld
 COPY --from=ui-build /app/dist /opt/umbreld/ui
 WORKDIR /opt/umbreld
-RUN chmod +x /opt/umbreld/source/modules/apps/legacy-compat/app-script
 
 # Install the dependencies
 RUN rm -rf node_modules || true
-RUN npm clean-install && npm link
-
-# Build the app
-RUN npm run build -- --native
+RUN npm clean-install --omit dev && npm link
 
 #########################################################################
 # umbrelos build stage
 #########################################################################
 
-FROM debian:bookworm-slim AS umbrelos
+FROM debian:${DEBIAN_VERSION}-slim AS umbrelos
 ENV NODE_ENV=production
 
+# We need to duplicate this such that we can also use the argument below.
 ARG TARGETARCH
+ARG YQ_VERSION
+ARG NODE_VERSION
+
 ARG VERSION_ARG="0.0"
-ARG YQ_VERSION="v4.24.5"
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG DEBCONF_NONINTERACTIVE_SEEN="true"
@@ -70,6 +74,10 @@ RUN set -eu \
   && apt-get --no-install-recommends -y install docker-ce-cli docker-compose-plugin \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && NODE_ARCH=$([ "${TARGETARCH}" = "arm64" ] && echo "arm64" || echo "x64") \
+  && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz -o node.tar.gz \
+  && tar -xz -f node.tar.gz -C /usr/local --strip-components=1 \
+  && rm -rf node.tar.gz \
   && curl -sLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH} \
   && chmod +x /usr/local/bin/yq \
   && echo "$VERSION_ARG" > /run/version \
