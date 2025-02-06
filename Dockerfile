@@ -66,8 +66,8 @@ ARG DEBCONF_NONINTERACTIVE_SEEN="true"
 
 RUN set -eu \
   && apt-get update -y \
-  && apt-get --no-install-recommends -y install sudo nano vim less man iproute2 iputils-ping curl wget ca-certificates samba wsdd2 p7zip-full dmidecode \
-  && apt-get --no-install-recommends -y install python3 fswatch jq rsync curl git gettext-base gnupg libnss-mdns whois procps tini imagemagick ffmpeg \
+  && apt-get --no-install-recommends -y install sudo nano vim less man iproute2 iputils-ping curl wget ca-certificates dmidecode tini \
+  && apt-get --no-install-recommends -y install python3 fswatch jq rsync curl git gettext-base gnupg libnss-mdns whois procps samba \
   && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
   && apt-get update -y \
@@ -78,7 +78,7 @@ RUN set -eu \
   && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz -o node.tar.gz \
   && tar -xz -f node.tar.gz -C /usr/local --strip-components=1 \
   && rm -rf node.tar.gz \
-  && curl -sLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH} \
+  && curl -fsSL /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${TARGETARCH} \
   && chmod +x /usr/local/bin/yq \
   && echo "$VERSION_ARG" > /run/version \
   && addgroup --gid 1000 umbrel \
