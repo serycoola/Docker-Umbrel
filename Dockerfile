@@ -9,7 +9,6 @@ ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
 # Apply custom patches
 COPY source /packages/umbreld/source
-RUN chmod +x /packages/umbreld/source/modules/apps/legacy-compat/app-script
 
 #########################################################################
 # ui build stage
@@ -42,6 +41,7 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS be-build
 COPY --from=base packages/umbreld /opt/umbreld
 COPY --from=ui-build /app/dist /opt/umbreld/ui
 WORKDIR /opt/umbreld
+RUN chmod +x /opt/umbreld/source/modules/apps/legacy-compat/app-script
 
 # Install the dependencies
 RUN rm -rf node_modules || true
