@@ -73,4 +73,5 @@ fi
 trap - ERR
 trap "pkill -SIGINT -f umbreld; while pgrep umbreld >/dev/null; do sleep 1; done" SIGINT SIGTERM
 
-umbreld --data-directory "$mount" & wait $!
+chmod +x /opt/umbreld/umbreld
+/opt/umbreld/umbreld --data-directory "$mount" & wait $!
