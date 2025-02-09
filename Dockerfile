@@ -86,10 +86,10 @@ RUN set -eu \
   && addgroup --gid 1000 umbrel \
   && adduser --uid 1000 --gid 1000 --gecos "" --disabled-password umbrel \
   && echo "umbrel:umbrel" | chpasswd \
-  && usermod -aG sudo,sambashare umbrel
+  && usermod -aG sudo umbrel
 
 # Copy Samba configuration
-COPY --chmod=664 ./smb.conf /etc/samba/smb.conf
+# COPY --chmod=664 ./smb.conf /etc/samba/smb.conf
 
 # Install umbreld
 COPY --chmod=755 ./entry.sh /run/
