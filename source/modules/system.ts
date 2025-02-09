@@ -386,6 +386,8 @@ export function getIpAddresses(): string[] {
 	const excludeAddressRanges = [
 		// Local loopback (127.0.0.0/8)
 		/^127\./,
+		// Docker internal network (10.21.0.0/16)
+		/^10\.21\./,		
 		// Non-routable APIPA (169.254.0.0/16), e.g. misconfigured DHCP
 		/^169\.254\./,
 	]
