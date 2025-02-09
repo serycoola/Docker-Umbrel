@@ -72,7 +72,6 @@ if [[ "$mount" != "/data" ]]; then
 fi
 
 trap - ERR
-trap "pkill -SIGINT -f umbreld; while pgrep umbreld >/dev/null; do sleep 1; done" SIGINT SIGTERM
+cd /opt/umbreld
 
-chmod +x /opt/umbreld/umbreld
-/opt/umbreld/umbreld --data-directory "$mount" & wait $!
+exec ./umbreld --data-directory "$mount" --log-level normal
