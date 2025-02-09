@@ -43,7 +43,7 @@ export default class Samba {
 
 	async stop() {
 		this.logger.log('Stopping samba')
-		await $`pkill -f smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
+		await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
 	}
 
 	async getSharePassword() {
@@ -123,7 +123,7 @@ export default class Samba {
 		} else {
 			// If we don't have at least one share, there is no need to keep Samba
 			// running, consuming resources, so make sure that it is stopped.
-			await $`pkill -f smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
+			await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
 		}
 	}
 
