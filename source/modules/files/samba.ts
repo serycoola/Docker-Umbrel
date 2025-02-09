@@ -43,7 +43,7 @@ export default class Samba {
 
 	async stop() {
 		this.logger.log('Stopping samba')
-		await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
+		//await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
 	}
 
 	async getSharePassword() {
@@ -116,14 +116,15 @@ export default class Samba {
 		if (hasAtLeastOneShare) {
 			// We know that there is at least one share, so make sure that Samba is
 			// running or, in case it already is, that its config is reloaded.
-			await $`smbd -D`.catch((error) => this.logger.error(`Failed to start smbd: ${error.message}`))
-			await $`smbcontrol smbd reload-config`.catch((error) =>
-				this.logger.error(`Failed to reload smbd configuration: ${error.message}`),
-			)
+			// TODO: Samba is disabled because it may conflict with daemon on the host (since we use pid:host)
+			// await $`smbd -D`.catch((error) => this.logger.error(`Failed to start smbd: ${error.message}`))
+			// await $`smbcontrol smbd reload-config`.catch((error) =>
+			// 	this.logger.error(`Failed to reload smbd configuration: ${error.message}`),
+			// )
 		} else {
 			// If we don't have at least one share, there is no need to keep Samba
 			// running, consuming resources, so make sure that it is stopped.
-			await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
+			// await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
 		}
 	}
 
