@@ -25,24 +25,24 @@ export default class Samba {
 	}
 
 	async start() {
-		this.logger.log('Starting samba')
+		// this.logger.log('Starting samba')
 
 		// Make sure the share password exists and is applied
-		try {
-			const sharePassword = await this.getSharePassword()
-			await $({
-				input: `${sharePassword}\n${sharePassword}\n`,
-			})`smbpasswd -s -a umbrel`
-		} catch (error) {
-			this.logger.error(`Failed to apply share password: ${(error as Error).message}`)
-		}
+		// try {
+		// 	const sharePassword = await this.getSharePassword()
+		// 	await $({
+		// 		input: `${sharePassword}\n${sharePassword}\n`,
+		// 	})`smbpasswd -s -a umbrel`
+		// } catch (error) {
+		// 	this.logger.error(`Failed to apply share password: ${(error as Error).message}`)
+		// }
 
 		// Generate share config and start/stop Samba accordingly
 		await this.syncShares().catch((error) => this.logger.error(`Failed to synchronize shares: ${error.message}`))
 	}
 
 	async stop() {
-		this.logger.log('Stopping samba')
+		//this.logger.log('Stopping samba')
 		//await $`killall --wait smbd`.catch((error) => this.logger.error(`Failed to stop smbd: ${error.message}`))
 	}
 
