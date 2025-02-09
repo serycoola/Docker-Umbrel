@@ -45,6 +45,8 @@ RUN chmod +x /opt/umbreld/source/modules/apps/legacy-compat/app-script
 
 # Install the dependencies
 RUN rm -rf node_modules || true
+
+# Build the app
 RUN npm clean-install --omit dev && npm link
 
 #########################################################################
