@@ -347,7 +347,8 @@ export default class Apps {
 			this.instances.map(async (app) => ({
 				id: app.id,
                                 // If we can't read an app's dependencies for any reason just skip that app, don't abort
-				dependencies: await app.getDependencies().catch(() => [] as string[]),			})),
+				dependencies: await app.getDependencies().catch(() => [] as string[]),
+			})),
 		)
 		return allDependencies.filter(({dependencies}) => dependencies.includes(appId)).map(({id}) => id)
 	}
