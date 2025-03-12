@@ -31,8 +31,8 @@ services:
     ports:
       - 80:80
     volumes:
-      - "/home/example:/data"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./umbrel:/data
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: always
     stop_grace_period: 1m
 ```
@@ -40,7 +40,7 @@ services:
 Via Docker CLI:
 
 ```bash
-docker run -it --rm -p 80:80 -v /home/example:/data -v /var/run/docker.sock:/var/run/docker.sock --pid=host --stop-timeout 60 dockurr/umbrel
+docker run -it --rm --name umbrel --pid=host -p 80:80 -v ${PWD:-.}/umbrel:/data -v /var/run/docker.sock:/var/run/docker.sock --stop-timeout 60 dockurr/umbrel
 ```
 
 ## Screenshot 📸
@@ -57,10 +57,10 @@ docker run -it --rm -p 80:80 -v /home/example:/data -v /var/run/docker.sock:/var
 
   ```yaml
   volumes:
-    - /home/example:/data
+    - ./umbrel:/data
   ```
 
-  Replace the example path `/home/example` with the desired storage folder.
+  Replace the example path `./umbrel` with the desired storage folder or named volume.
 
 ## Stars 🌟
 [![Stars](https://starchart.cc/dockur/umbrel.svg?variant=adaptive)](https://starchart.cc/dockur/umbrel)
