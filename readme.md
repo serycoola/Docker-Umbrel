@@ -43,6 +43,10 @@ services:
 docker run -it --rm --name umbrel --pid=host -p 80:80 -v ${PWD:-.}/umbrel:/data -v /var/run/docker.sock:/var/run/docker.sock --stop-timeout 60 dockurr/umbrel
 ```
 
+##### Via Github Codespaces:
+
+[`Click here to launch this container in the cloud!`](https://github.com/codespaces/new?skip_quickstart=true&machine=basicLinux32gb&repo=862032083&ref=master&devcontainer_path=.devcontainer.json)
+
 ## Screenshot 📸
 
 <div align="center">
