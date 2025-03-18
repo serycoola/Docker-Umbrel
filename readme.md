@@ -20,7 +20,7 @@ Docker container of [Umbrel](https://umbrel.com/umbrelos) (an OS for self-hostin
 
 ## Usage  🐳
 
-Via Docker Compose:
+##### Via Docker Compose:
 
 ```yaml
 services:
@@ -37,7 +37,7 @@ services:
     stop_grace_period: 1m
 ```
 
-Via Docker CLI:
+##### Via Docker CLI:
 
 ```bash
 docker run -it --rm --name umbrel --pid=host -p 80:80 -v ${PWD:-.}/umbrel:/data -v /var/run/docker.sock:/var/run/docker.sock --stop-timeout 60 dockurr/umbrel
