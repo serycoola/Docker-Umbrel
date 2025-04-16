@@ -40,7 +40,7 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name umbrel --pid=host -p 80:80 -v ${PWD:-.}/umbrel:/data -v /var/run/docker.sock:/var/run/docker.sock --stop-timeout 60 dockurr/umbrel
+docker run -it --rm --name umbrel --pid=host -p 80:80 -v "${PWD:-.}/umbrel:/data" -v "/var/run/docker.sock:/var/run/docker.sock" --stop-timeout 60 dockurr/umbrel
 ```
 
 ##### Via Github Codespaces:
