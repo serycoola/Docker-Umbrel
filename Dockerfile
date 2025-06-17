@@ -4,7 +4,8 @@ ARG DEBIAN_VERSION=bookworm
 
 FROM --platform=$BUILDPLATFORM scratch AS base
 
-ADD https://github.com/getumbrel/umbrel.git /
+ARG VERSION_ARG="1.4.2"
+ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
 # Apply custom patches
 COPY source /packages/umbreld/source
@@ -65,6 +66,7 @@ ARG TARGETARCH
 ARG YQ_VERSION
 ARG NODE_VERSION
 
+ARG VERSION_ARG="1.4.2"
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG DEBCONF_NONINTERACTIVE_SEEN="true"
