@@ -4,8 +4,7 @@ ARG DEBIAN_VERSION=bookworm
 
 FROM --platform=$BUILDPLATFORM scratch AS base
 
-ARG VERSION_ARG="0.0"
-ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
+ADD https://github.com/getumbrel/umbrel.git /
 
 # Apply custom patches
 COPY source /packages/umbreld/source
@@ -24,6 +23,11 @@ WORKDIR /app
 
 # Copy the package.json and package-lock.json
 COPY --from=base packages/ui/ .
+
+# The ui-build stage only has 'packages/ui' in '/app', but the ui imports runtime values
+# via a relative path ('../../../umbreld/source/modules/server/trpc/common') that resolves outside '/app'.
+# We copy the target file to the expected path for the build to succeed.
+COPY --from=base packages/umbreld/source/modules/server/trpc/common.ts /umbreld/source/modules/server/trpc/common.ts
 
 # Install the dependencies
 RUN rm -rf node_modules || true
@@ -61,7 +65,6 @@ ARG TARGETARCH
 ARG YQ_VERSION
 ARG NODE_VERSION
 
-ARG VERSION_ARG="0.0"
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG DEBCONF_NONINTERACTIVE_SEEN="true"
