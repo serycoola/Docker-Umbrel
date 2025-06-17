@@ -1,6 +1,6 @@
 <h1 align="center">umbrelOS<br />
 <div align="center">
-<a href="https://github.com/dockur/umbrel"><img src="https://raw.githubusercontent.com/dockur/umbrel/master/.github/header.png" title="Logo" style="max-width:100%;" width="256" /></a>
+<a href="https://github.com/serycoola/Docker-Umbrel"><img src="https://raw.githubusercontent.com/dockur/umbrel/master/.github/header.png" title="Logo" style="max-width:100%;" width="256" /></a>
 </div>
 <div align="center">
 
@@ -25,7 +25,7 @@ Docker container of [Umbrel](https://umbrel.com/umbrelos) (an OS for self-hostin
 ```yaml
 services:
   umbrel:
-    image: dockurr/umbrel
+    image: dotblank/docker-umbrel
     container_name: umbrel
     pid: host
     ports:
@@ -40,7 +40,7 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name umbrel --pid=host -p 80:80 -v "${PWD:-.}/umbrel:/data" -v "/var/run/docker.sock:/var/run/docker.sock" --stop-timeout 60 dockurr/umbrel
+docker run -it --rm --name umbrel --pid=host -p 80:80 -v "${PWD:-.}/umbrel:/data" -v "/var/run/docker.sock:/var/run/docker.sock" --stop-timeout 60 dotblank/docker-umbrel
 ```
 
 ##### Via Github Codespaces:
