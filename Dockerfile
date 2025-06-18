@@ -8,7 +8,7 @@ ARG VERSION_ARG="1.4.2"
 ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
 # Apply custom patches
-COPY source /packages/umbreld/source
+COPY --from=base packages/umbreld/source /packages/umbreld/source
 
 #########################################################################
 # ui build stage
