@@ -7,8 +7,6 @@ FROM --platform=$BUILDPLATFORM scratch AS base
 ARG VERSION_ARG="1.4.2"
 ADD https://github.com/getumbrel/umbrel.git#${VERSION_ARG} /
 
-# Apply custom patches
-COPY --from=base packages/umbreld/source /packages/umbreld/source
 
 #########################################################################
 # ui build stage
@@ -24,6 +22,9 @@ WORKDIR /app
 
 # Copy the package.json and package-lock.json
 COPY --from=base packages/ui/ .
+
+# Apply custom patches
+COPY --from=base packages/umbreld/source /packages/umbreld/source
 
 # The ui-build stage only has 'packages/ui' in '/app', but the ui imports runtime values
 # via a relative path ('../../../umbreld/source/modules/server/trpc/common') that resolves outside '/app'.
